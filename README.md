@@ -110,7 +110,7 @@ Install-Module Az.Accounts, Az.Resources, Az.Monitor, Az.Network, Az.Compute, Az
 
 - **Backups are created automatically** — each phase script saves resource state to `output\backups\` before making changes.
 - **Validation mode** (`-Validate`) checks current state and resource counts without making any changes.
-- **Production systems warning** — verify that target resources are confirmed legacy before archiving. Review the resource inventory in `AzureResourcesToBeArchived.xlsx`.
+- **Production systems warning** — verify that target resources are confirmed legacy before archiving. 
 - **Phase execution is sequential** — scripts within each phase run in alphabetical order. If a script fails, the orchestrator logs the error and continues to the next script.
 - **Summary reports** are generated after each phase run in `output\reports\`.
 - **Restore is per-resource** — use `Restore-ArchivedResource.ps1` to roll back individual resources using their backup files.
