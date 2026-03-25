@@ -30,14 +30,38 @@ param(
     [string[]]$SubscriptionId,
 
     [ValidateNotNullOrEmpty()]
+    [Alias('BackupPath')]
     [string]$OutputPath = ".\output\reports\log-analytics",
 
     [ValidateNotNullOrEmpty()]
-    [hashtable]$Tag = @{ ArchiveProject = "ArchiveLegacy" }
+    [hashtable]$Tag = @{ ArchiveProject = "ArchiveLegacy" },
+
+    [string]$SubscriptionListPath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+function Import-SubscriptionList {
+    param([string]$Path)
+    $csv = Import-Csv -Path $Path
+    $ids = @()
+    foreach ($row in $csv) {
+        try {
+            $sub = Get-AzSubscription -SubscriptionName $row.SubscriptionName -ErrorAction Stop
+            $ids += $sub.Id
+        }
+        catch {
+            Write-Warning "Could not resolve subscription '$($row.SubscriptionName)': $_"
+        }
+    }
+    if ($ids.Count -eq 0) { throw "No valid subscriptions resolved from '$Path'" }
+    return $ids
+}
+
+if (-not $SubscriptionId -and $SubscriptionListPath) {
+    $SubscriptionId = Import-SubscriptionList -Path $SubscriptionListPath
+}
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $tagName = ($Tag.Keys | Select-Object -First 1)

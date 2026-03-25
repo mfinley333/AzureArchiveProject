@@ -25,11 +25,34 @@ param(
     [ValidateNotNullOrEmpty()]
     [string[]]$SubscriptionId,
 
-    [string]$OutputPath = 'c:\dev\AzureArchiveProject\output\inventory'
+    [string]$OutputPath = (Join-Path $PSScriptRoot '..\..\output\inventory'),
+
+    [string]$SubscriptionListPath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+function Import-SubscriptionList {
+    param([string]$Path)
+    $csv = Import-Csv -Path $Path
+    $ids = @()
+    foreach ($row in $csv) {
+        try {
+            $sub = Get-AzSubscription -SubscriptionName $row.SubscriptionName -ErrorAction Stop
+            $ids += $sub.Id
+        }
+        catch {
+            Write-Warning "Could not resolve subscription '$($row.SubscriptionName)': $_"
+        }
+    }
+    if ($ids.Count -eq 0) { throw "No valid subscriptions resolved from '$Path'" }
+    return $ids
+}
+
+if (-not $SubscriptionId -and $SubscriptionListPath) {
+    $SubscriptionId = Import-SubscriptionList -Path $SubscriptionListPath
+}
 
 if (-not (Test-Path $OutputPath)) {
     New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null

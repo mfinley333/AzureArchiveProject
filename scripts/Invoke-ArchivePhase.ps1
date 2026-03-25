@@ -30,6 +30,24 @@
 .PARAMETER BackupPath
     Path for backup files. Defaults to .\output\backups.
 
+.PARAMETER ArchiveStorageAccountName
+    (Phase 4) Name of the archive storage account for data protection operations.
+
+.PARAMETER SqlAdminLogin
+    (Phase 4) SQL Server administrator login for database backup operations.
+
+.PARAMETER SqlAdminPassword
+    (Phase 4) SQL Server administrator password (SecureString).
+
+.PARAMETER PgAdminUser
+    (Phase 4) PostgreSQL administrator user for database backup operations.
+
+.PARAMETER PgAdminPassword
+    (Phase 4) PostgreSQL administrator password (SecureString).
+
+.PARAMETER CloudEngTeamObjectId
+    (Phase 4) Azure AD Object ID for the Cloud Engineering team, used for RBAC assignments.
+
 .PARAMETER Validate
     Check current state and list what would be done without executing.
 
@@ -63,6 +81,18 @@ param(
 
     [string]$BackupPath = ".\output\backups",
 
+    [string]$ArchiveStorageAccountName,
+
+    [string]$SqlAdminLogin,
+
+    [SecureString]$SqlAdminPassword,
+
+    [string]$PgAdminUser,
+
+    [SecureString]$PgAdminPassword,
+
+    [string]$CloudEngTeamObjectId,
+
     [switch]$Validate
 )
 
@@ -75,7 +105,7 @@ $PhaseMap = @{
     2 = 'phase2-network-isolation'
     3 = 'phase3-soft-stop-compute'
     4 = 'phase4-data-protection'
-    5 = 'phase5-monitoring'
+    5 = 'phase5-monitoring-seeBicepTerraform'  # Phase 5 is managed via Bicep/Terraform
     6 = 'phase6-cleanup'
 }
 #endregion
@@ -260,8 +290,28 @@ foreach ($script in $phaseScripts) {
     try {
         $scriptParams = @{
             SubscriptionId = $SubscriptionId
-            BackupPath     = $BackupPath
         }
+
+        # Add BackupPath for phases that use it
+        if ($Phase -in @(2, 3, 6)) {
+            $scriptParams['BackupPath'] = $BackupPath
+        }
+
+        # Add OutputPath for Phase 1
+        if ($Phase -eq 1) {
+            $scriptParams['OutputPath'] = $BackupPath
+        }
+
+        # Add Phase 4 specific params
+        if ($Phase -eq 4) {
+            if ($ArchiveStorageAccountName) { $scriptParams['ArchiveStorageAccountName'] = $ArchiveStorageAccountName }
+            if ($SqlAdminLogin) { $scriptParams['SqlAdminLogin'] = $SqlAdminLogin }
+            if ($SqlAdminPassword) { $scriptParams['SqlAdminPassword'] = $SqlAdminPassword }
+            if ($PgAdminUser) { $scriptParams['PgAdminUser'] = $PgAdminUser }
+            if ($PgAdminPassword) { $scriptParams['PgAdminPassword'] = $PgAdminPassword }
+            if ($CloudEngTeamObjectId) { $scriptParams['CloudEngTeamObjectId'] = $CloudEngTeamObjectId }
+        }
+
         if ($WhatIfPreference) {
             $scriptParams['WhatIf'] = $true
         }
