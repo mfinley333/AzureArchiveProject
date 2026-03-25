@@ -6,24 +6,13 @@ Systematic archival of legacy Azure infrastructure , reducing costs while preser
 
 | Phase | Name | Description |
 |-------|------|-------------|
-| 1 | **Discovery** | Inventory and tag all resources across target subscriptions |
+| 1 | **Discovery** | Inventory / tag and capture baseline metrics for all resources across target subscriptions |
 | 2 | **Network Isolation** | Isolate network resources — NSGs, Traffic Manager profiles, Application Gateways |
 | 3 | **Soft-Stop Compute** | Stop/deallocate VMs, stop WebApps, disable Logic Apps |
 | 4 | **Data Protection** | Backup and tier-down databases and storage accounts |
 | 5 | **Monitoring** | Set up lightweight monitoring for archived resources |
 | 6 | **Cleanup** | Disable legacy alerts, export dashboards, consolidate Log Analytics workspaces, remove unused action groups |
 
-## Resource Counts
-
-| Resource Type | Count |
-|---------------|-------|
-| Metric Alerts | 610 |
-| Scheduled Query Rules | 2,401 |
-| Smart Detector Alert Rules | 164 |
-| Activity Log Alerts | 41 |
-| Dashboards | 700 |
-| Log Analytics Workspaces | 91 |
-| Action Groups | 879 |
 
 ## Directory Structure
 
