@@ -186,7 +186,7 @@ $outputDirs = @(
 )
 foreach ($dir in $outputDirs) {
     if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        New-Item -ItemType Directory -Path $dir -Force -WhatIf:$false | Out-Null
         Write-Verbose "Created directory: $dir"
     }
 }
@@ -258,17 +258,15 @@ foreach ($script in $phaseScripts) {
     }
 
     try {
-        if ($PSCmdlet.ShouldProcess($scriptName, "Execute archive script")) {
-            $scriptParams = @{
-                SubscriptionId = $SubscriptionId
-                BackupPath     = $BackupPath
-            }
-            if ($WhatIfPreference) {
-                $scriptParams['WhatIf'] = $true
-            }
-
-            & $scriptPath @scriptParams
+        $scriptParams = @{
+            SubscriptionId = $SubscriptionId
+            BackupPath     = $BackupPath
         }
+        if ($WhatIfPreference) {
+            $scriptParams['WhatIf'] = $true
+        }
+
+        & $scriptPath @scriptParams
 
         $result.Status = 'Success'
         $successCount++
