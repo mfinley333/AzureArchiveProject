@@ -93,14 +93,14 @@ do {
     }
 
     try {
-        $result = Search-AzGraph @graphParams
+        $result = Search-AzGraph @graphParams -ErrorAction Stop
     }
     catch {
         Write-Error "Resource Graph query failed: $_"
         return
     }
 
-    foreach ($row in $result.Data) {
+    foreach ($row in @($result.Data)) {
         $tagString = ''
         if ($row.tags) {
             $tagString = ($row.tags.PSObject.Properties |

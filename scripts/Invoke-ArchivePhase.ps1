@@ -132,6 +132,32 @@ function Import-SubscriptionList {
     return $ids
 }
 
+function Resolve-SubscriptionIdentifiers {
+    <#
+    .SYNOPSIS
+        Resolves provided subscription identifiers to subscription IDs.
+    #>
+    param([string[]]$Identifiers)
+
+    $resolvedIds = @()
+    foreach ($identifier in $Identifiers) {
+        if ($identifier -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
+            $resolvedIds += $identifier
+            continue
+        }
+
+        try {
+            $subscription = Get-AzSubscription -SubscriptionName $identifier -ErrorAction Stop | Select-Object -First 1
+            $resolvedIds += $subscription.Id
+        }
+        catch {
+            throw "Could not resolve subscription identifier '$identifier' to a subscription ID. Error: $_"
+        }
+    }
+
+    return $resolvedIds
+}
+
 function Test-Prerequisites {
     <#
     .SYNOPSIS
@@ -145,6 +171,7 @@ function Test-Prerequisites {
     $requiredModules = @(
         'Az.Accounts',
         'Az.Resources',
+        'Az.ResourceGraph',
         'Az.Monitor',
         'Az.Network',
         'Az.Compute',
@@ -196,6 +223,8 @@ if (-not $SubscriptionId) {
         throw "No subscriptions specified. Provide -SubscriptionId or ensure '$SubscriptionListPath' exists."
     }
 }
+
+$SubscriptionId = Resolve-SubscriptionIdentifiers -Identifiers $SubscriptionId
 
 $phaseStart = Get-Date
 $phaseFolderName = $PhaseMap[$Phase]
@@ -291,6 +320,7 @@ foreach ($script in $phaseScripts) {
         $scriptParams = @{
             SubscriptionId = $SubscriptionId
         }
+        $scriptCommand = Get-Command -Name $scriptPath -ErrorAction Stop
 
         # Add BackupPath for phases that use it
         if ($Phase -in @(2, 3, 6)) {
@@ -312,7 +342,7 @@ foreach ($script in $phaseScripts) {
             if ($CloudEngTeamObjectId) { $scriptParams['CloudEngTeamObjectId'] = $CloudEngTeamObjectId }
         }
 
-        if ($WhatIfPreference) {
+        if ($WhatIfPreference -and $scriptCommand.Parameters.ContainsKey('WhatIf')) {
             $scriptParams['WhatIf'] = $true
         }
 

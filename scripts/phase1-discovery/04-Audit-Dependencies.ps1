@@ -66,6 +66,7 @@ $dependencyFile = Join-Path $OutputPath "dependency-map-$timestamp.csv"
 $sharedResourceFile = Join-Path $OutputPath "shared-resources-$timestamp.csv"
 
 $dependencies = [System.Collections.Generic.List[PSCustomObject]]::new()
+$graphErrors = [System.Collections.Generic.List[string]]::new()
 
 function Invoke-GraphQuery {
     param([string]$Query, [string[]]$Subs)
@@ -75,12 +76,16 @@ function Invoke-GraphQuery {
         $p = @{ Query = $Query; Subscription = $Subs; First = 1000 }
         if ($skip) { $p['SkipToken'] = $skip }
         try {
-            $r = Search-AzGraph @p
-            $r.Data | ForEach-Object { $all.Add($_) }
+            $r = Search-AzGraph @p -ErrorAction Stop
+            foreach ($row in @($r.Data)) {
+                $all.Add($row)
+            }
             $skip = $r.SkipToken
         }
         catch {
-            Write-Warning "Graph query failed: $_"
+            $message = "Graph query failed: $($_.Exception.Message)"
+            $graphErrors.Add($message)
+            Write-Warning $message
             $skip = $null
         }
     } while ($skip)
@@ -285,8 +290,12 @@ $sharedResources | Export-Csv -Path $sharedResourceFile -NoTypeInformation -Enco
 Write-Host "`n=== Dependency Audit Summary ===" -ForegroundColor Green
 $dependencies | Group-Object RelationType | Select-Object Name, Count | Format-Table -AutoSize
 
-$sharedCount = ($sharedResources | Where-Object { $_.IsShared }).Count
+$sharedCount = @($sharedResources | Where-Object { $_.IsShared }).Count
 Write-Host "Shared resources (multi-consumer): $sharedCount" -ForegroundColor Yellow
 
 Write-Host "`nDependency map:   $dependencyFile"
 Write-Host "Shared resources: $sharedResourceFile"
+
+if ($graphErrors.Count -gt 0) {
+    throw ($graphErrors | Select-Object -First 1)
+}

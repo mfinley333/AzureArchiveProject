@@ -103,8 +103,17 @@ do {
     }
     if ($skipToken) { $graphParams['SkipToken'] = $skipToken }
 
-    $result = Search-AzGraph @graphParams
-    $result.Data | ForEach-Object { $resources.Add($_) }
+    try {
+        $result = Search-AzGraph @graphParams -ErrorAction Stop
+    }
+    catch {
+        throw "Resource Graph query failed: $($_.Exception.Message)"
+    }
+
+    foreach ($row in @($result.Data)) {
+        $resources.Add($row)
+    }
+
     $skipToken = $result.SkipToken
 } while ($skipToken)
 
@@ -140,6 +149,7 @@ foreach ($res in $resources) {
             -EndTime $endTime `
             -TimeGrain '1.00:00:00' `
             -AggregationType Total `
+            -WarningAction SilentlyContinue `
             -ErrorAction Stop
 
         $totalValue = ($metric.Data | Measure-Object -Property Total -Sum).Sum

@@ -43,6 +43,7 @@ AzureArchiveProject/
 - **Az PowerShell Modules:**
   - `Az.Accounts`
   - `Az.Resources`
+    - `Az.ResourceGraph`
   - `Az.Monitor`
   - `Az.Network`
   - `Az.Compute`
@@ -56,7 +57,7 @@ AzureArchiveProject/
 Install all required Az modules:
 
 ```powershell
-Install-Module Az.Accounts, Az.Resources, Az.Monitor, Az.Network, Az.Compute, Az.Sql, Az.OperationalInsights, Az.Websites -Scope CurrentUser -Force
+Install-Module Az.Accounts, Az.Resources, Az.ResourceGraph, Az.Monitor, Az.Network, Az.Compute, Az.Sql, Az.OperationalInsights, Az.Websites -Scope CurrentUser -Force
 ```
 
 ## Usage
