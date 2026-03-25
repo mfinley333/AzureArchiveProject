@@ -1,0 +1,10 @@
+{
+  "assignments": [
+    {
+      "assignment_id": "chubb-archive-001",
+      "universe": "apollo13",
+      "created_at": "2025-07-15T00:00:00Z",
+      "agents": ["Lovell", "Haise", "Swigert", "Kranz"]
+    }
+  ]
+}

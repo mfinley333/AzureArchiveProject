@@ -1,0 +1,5 @@
+{
+  "universe_allowlist": ["apollo13"],
+  "max_capacity": 8,
+  "overflow_strategy": "diegetic_expansion"
+}

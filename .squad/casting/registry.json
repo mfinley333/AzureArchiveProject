@@ -1,0 +1,8 @@
+{
+  "entries": [
+    { "persistent_name": "Lovell", "universe": "apollo13", "role": "Lead", "created_at": "2025-07-15T00:00:00Z", "legacy_named": false, "status": "active" },
+    { "persistent_name": "Haise", "universe": "apollo13", "role": "Tester", "created_at": "2025-07-15T00:00:00Z", "legacy_named": false, "status": "active" },
+    { "persistent_name": "Swigert", "universe": "apollo13", "role": "Validator", "created_at": "2025-07-15T00:00:00Z", "legacy_named": false, "status": "active" },
+    { "persistent_name": "Kranz", "universe": "apollo13", "role": "DevOps Engineer", "created_at": "2025-07-15T00:00:00Z", "legacy_named": false, "status": "active" }
+  ]
+}
