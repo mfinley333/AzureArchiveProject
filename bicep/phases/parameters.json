@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus2"
+    },
+    "notificationEmail": {
+      "value": "cloudeng@contoso.com"
+    },
+    "archiveTagValue": {
+      "value": "ArchiveLegacy"
+    },
+    "resourceGroupName": {
+      "value": "rg-azure-archive-monitoring"
+    },
+    "cloudEngTeamObjectId": {
+      "value": "00000000-0000-0000-0000-000000000000"
+    }
+  }
+}
